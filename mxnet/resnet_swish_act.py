@@ -25,6 +25,7 @@ Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Identity Mappings in Deep Re
 '''
 import mxnet as mx
 import numpy as np
+import SwishAct_zyf
 
 
 def Activation(data, act_type, name):
@@ -62,17 +63,17 @@ bn_mom=0.9, workspace=256, memonger=False, act_type = 'swish'):
         # the same as https://github.com/facebook/fb.resnet.torch#notes, a bit difference with origin paper
         bn1 = mx.sym.BatchNorm(data=data, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn1')
         # act1 = mx.sym.Activation(data=bn1, act_type='swish', name=name + '_relu1')
-        act1 = Activation(data=bn1, act_type, name=name + '_%s1' % act_type)
+        act1 = Activation(data=bn1, act_type=act_type, name=name + '_%s1' % act_type)
         conv1 = mx.sym.Convolution(data=act1, num_filter=int(num_filter*0.25), kernel=(1,1), stride=(1,1), pad=(0,0),
                                    no_bias=True, workspace=workspace, name=name + '_conv1')
         bn2 = mx.sym.BatchNorm(data=conv1, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn2')
         # act2 = mx.sym.Activation(data=bn2, act_type='swish', name=name + '_relu2')
-        act2 = Activation(data=bn2, act_type, name=name + '_%s2' % act_type)
+        act2 = Activation(data=bn2, act_type=act_type, name=name + '_%s2' % act_type)
         conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter*0.25), kernel=(3,3), stride=stride, pad=(1,1),
                                    no_bias=True, workspace=workspace, name=name + '_conv2')
         bn3 = mx.sym.BatchNorm(data=conv2, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn3')
         # act3 = mx.sym.Activation(data=bn3, act_type='swish', name=name + '_relu3')
-        act3 = Activation(data=bn3, act_type, name=name + '_%s3' % act_type)
+        act3 = Activation(data=bn3, act_type=act_type, name=name + '_%s3' % act_type)
         conv3 = mx.sym.Convolution(data=act3, num_filter=num_filter, kernel=(1,1), stride=(1,1), pad=(0,0), no_bias=True,
                                    workspace=workspace, name=name + '_conv3')
         if dim_match:
@@ -86,12 +87,12 @@ bn_mom=0.9, workspace=256, memonger=False, act_type = 'swish'):
     else:
         bn1 = mx.sym.BatchNorm(data=data, fix_gamma=False, momentum=bn_mom, eps=2e-5, name=name + '_bn1')
         # act1 = mx.sym.Activation(data=bn1, act_type='swish', name=name + '_relu1')
-        act1 = Activation(data=bn1, act_type, name=name + '_%s1' % act_type)
+        act1 = Activation(data=bn1, act_type=act_type, name=name + '_%s1' % act_type)
         conv1 = mx.sym.Convolution(data=act1, num_filter=num_filter, kernel=(3,3), stride=stride, pad=(1,1),
                                       no_bias=True, workspace=workspace, name=name + '_conv1')
         bn2 = mx.sym.BatchNorm(data=conv1, fix_gamma=False, momentum=bn_mom, eps=2e-5, name=name + '_bn2')
         # act2 = mx.sym.Activation(data=bn2, act_type='swish', name=name + '_relu2')
-        act2 = Activation(data=bn2, act_type, name=name + '_%s2' % act_type)
+        act2 = Activation(data=bn2, act_type=act_type, name=name + '_%s2' % act_type)
         conv2 = mx.sym.Convolution(data=act2, num_filter=num_filter, kernel=(3,3), stride=(1,1), pad=(1,1),
                                       no_bias=True, workspace=workspace, name=name + '_conv2')
         if dim_match:
@@ -141,7 +142,7 @@ bn_mom=0.9, workspace=256, dtype='float32', memonger=False, act_type='swish'):
                                   no_bias=True, name="conv0", workspace=workspace)
         body = mx.sym.BatchNorm(data=body, fix_gamma=False, eps=2e-5, momentum=bn_mom, name='bn0')
         # body = mx.sym.Activation(data=body, act_type='swish', name='relu0')
-        body = Activation(data=body, act_type, name='%s0' % act_type)
+        body = Activation(data=body, act_type=act_type, name='%s0' % act_type)
 
         body = mx.sym.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
 
@@ -154,7 +155,7 @@ bn_mom=0.9, workspace=256, dtype='float32', memonger=False, act_type='swish'):
                                  bottle_neck=bottle_neck, workspace=workspace, memonger=memonger, act_type=act_type)
     bn1 = mx.sym.BatchNorm(data=body, fix_gamma=False, eps=2e-5, momentum=bn_mom, name='bn1')
     # relu1 = mx.sym.Activation(data=bn1, act_type='swish', name='relu1')
-    relu1 = Activation(data=bn1, act_type, name='%s1' % act_type)
+    relu1 = Activation(data=bn1, act_type=act_type, name='%s1' % act_type)
     # Although kernel is not used here when global_pool=True, we should put one
     pool1 = mx.sym.Pooling(data=relu1, global_pool=True, kernel=(7, 7), pool_type='avg', name='pool1')
     flat = mx.sym.Flatten(data=pool1)

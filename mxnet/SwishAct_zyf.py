@@ -40,8 +40,11 @@ class SwishAct(mx.operator.CustomOp):
         x = in_data[0]
         y = out_data[0]
         dy = out_grad[0]
-        dx = y * self._beta + self._x_sig*(1.0 - y * self._beta)
+        # dx = dy * (y * self._beta + self._x_sig*(1.0 - y * self._beta))
+        tmp = y * self._beta
+        dx = dy * (tmp + self._x_sig * (1.0-tmp))
         self.assign(in_grad[0], req[0], dx)
+
 
 @mx.operator.register("SwishAct")  # register with name "SwishAct"
 class SwishActProp(mx.operator.CustomOpProp):
@@ -73,6 +76,7 @@ class SwishActProp(mx.operator.CustomOpProp):
     def create_operator(self, ctx, in_shapes, in_dtypes):
         #  create and return the CustomOp class.
         return SwishAct(self._beta)
+
 
 if __name__=='__main__':    
     from mxnet import autograd
